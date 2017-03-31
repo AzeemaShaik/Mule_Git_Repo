@@ -13,10 +13,48 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<mule.version>3.8.0</mule.version>
+		<eclipsePluginVersion>2.8</eclipsePluginVersion>
+	<jdkName>JavaSE-1.8.0</jdkName>
+	<jdk.version>1.8.0</jdk.version>
+	<junit.version>4.9</junit.version>
     	<mule.tools.version>1.2</mule.tools.version>
 	</properties>
 
 	<build>
+	  <pluginManagement>
+	  <plugins>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-install-plugin</artifactId>
+		  <version>2.3.1</version>
+		</plugin>
+		<plugin>
+		  <groupId>org.eclipse.m2e</groupId>
+		  <artifactId>lifecycle-mapping</artifactId>
+		  <version>1.0.0</version>
+		  <configuration>
+			<lifecycleMappingMetadata>
+			  <pluginExecutions>
+				<pluginExecution>
+				  <pluginExecutionFilter>
+					<groupId>org.mule.tools</groupId>
+					<artifactId>maven-mule-plugin</artifactId>
+					<versionRange>[1.6,)</versionRange>
+					<goals>
+					  <goal>attach-test-resources</goal>
+					  <goal>filter-resources		</goal>
+					</goals>
+				  </pluginExecutionFilter>
+				  <action>
+					<ignore></ignore>
+				  </action>
+				</pluginExecution>
+			  </pluginExecutions>
+			</lifecycleMappingMetadata>
+		  </configuration>
+		</plugin>
+	  </plugins>
+	</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.mule.tools.maven</groupId>
@@ -27,6 +65,33 @@
                     <copyToAppsDirectory>true</copyToAppsDirectory>
 				</configuration>
 			</plugin>
+			 <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<version>2.3.2</version>
+		<configuration>
+		  <source>${jdk.version}</source>
+		  <target>${jdk.version}</target>
+		  <encoding>ISO-8859-1</encoding>
+		</configuration>
+	  </plugin>
+	  <plugin>
+		<artifactId>maven-assembly-plugin</artifactId>
+		<version>2.2.1</version>
+		<configuration>
+		  <descriptorRefs>
+			<descriptorRef>project</descriptorRef>
+		  </descriptorRefs>
+		</configuration>
+	  </plugin>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-eclipse-plugin</artifactId>
+		<version>${eclipsePluginVersion}</version>
+		<configuration>
+		  <downloadSources>true</downloadSources>
+		</configuration>
+	  </plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -54,8 +119,44 @@
 					</execution>
 				</executions>
 			</plugin>
+			 <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>exec-maven-plugin</artifactId>
+		<version>1.2.1</version>
+		<executions>
+		  <execution>
+		    <goals>
+		      <goal>java</goal>
+		    </goals>
+		  </execution>
+		</executions>
+		<configuration>
+		  <mainClass>org.mule.MuleServer</mainClass>
+		  <arguments>
+		    <argument>-config</argument>
+			<argument>src/main/app/mule-config.xml</argument>
+		  </arguments>
+		  <classpathScope>compile</classpathScope>
+		</configuration>
+	  </plugin>
+	  <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 		</plugins>
 	</build>
+	
+
 
 	<!-- Mule Dependencies -->
 	<dependencies>
@@ -138,19 +239,37 @@
         </dependency>
     </dependencies>
 
-	<repositories>
-          <repository>
-            <id>Central</id>
-            <name>Central</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>mulesoft-releases</id>
-            <name>MuleSoft Releases Repository</name>
-            <url>http://repository.mulesoft.org/releases/</url>
-            <layout>default</layout>
-        </repository>
+ <repositories>
+    <repository>
+      <id>jboss</id>
+      <name>JBoss</name>
+      <url>http://repository.jboss.com/</url>
+    </repository>
+    <repository>
+      <id>mulesoft-releases</id>
+      <name>MuleSoft Releases</name>
+      <url>http://repository.mulesoft.org/releases/</url>
+    </repository>
+    <repository>
+      <id>oss-sonatype-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>codehaus-snaphosts</id>
+      <name>Codehaus Snapshots</name>
+      <url>http://snapshots.repository.codehaus.org/</url>
+    </repository>
+    <repository>
+      <id>codehaus-releases</id>
+      <name>CodeHaus Releases</name>
+      <url>http://repository.codehaus.org/</url>
+    </repository>
+    <repository>
+      <id>project.local</id>
+      <name>project</name>
+      <url>file:${project.basedir}/repo</url>
+    </repository>
+
     </repositories>
     <pluginRepositories>
         <pluginRepository>
